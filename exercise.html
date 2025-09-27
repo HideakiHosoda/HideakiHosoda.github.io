@@ -1,90 +1,187 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Exercise 1 - カラーブロックのグリッド</title>
+  <meta charset="UTF-8" />
+  <title>Code Writing Exercises</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+
+  <!-- このページ専用の軽量スタイル -->
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f4f4f4;
+    .exercise-list{ max-width:1100px; margin: min(6vh,60px) auto; padding:0 6vw 8vh; }
+    .exercise{ background:#ffffff10; border:1px solid #ffffff22; border-radius:16px; padding:22px; margin:22px 0 36px; }
+    .exercise h2{ margin:0 0 .2em; }
+    .exercise p.lead{ margin:.2em 0 1em; opacity:.9; }
+    .playground{ display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+    .codepane{ flex:1 1 520px; display:flex; flex-direction:column; gap:10px; }
+    .codepane textarea{
+      width:100%; min-height:220px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size:14px; line-height:1.6; padding:12px; border-radius:12px; border:1px solid #ffffff3a;
+      background:#00000026; color:#fff; outline:none; resize:vertical;
     }
-    h1 { color: #2b2; }
-    .container {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .code-box {
-      background: #2b7a2b;
-      color: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      font-family: monospace;
-      font-size: 14px;
-      flex: 1 1 45%;
-      overflow-x: auto;
-    }
-    iframe {
-      flex: 1 1 45%;
-      height: 300px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      background: #fff;
-    }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .btn{ appearance:none; border:none; border-radius:999px; padding:10px 16px; cursor:pointer; font-weight:600; }
+    .btn.run{ background:#ff8a50; color:#2b2b2b; }
+    .btn.copy{ background:#7cc4ff; color:#1a1a1a; }
+    .btn:active{ transform: translateY(1px); }
+    .preview{ flex:1 1 420px; border:1px solid #ffffff3a; border-radius:12px; overflow:hidden; background:#fff; }
+    .preview iframe{ width:100%; height:320px; border:0; display:block; background:#fff; }
+    @media (max-width:700px){ .preview iframe{ height:260px; } }
   </style>
 </head>
 <body>
-  <h1>Exercise 1: カラーブロックのグリッド</h1>
-  <p>CSS Gridで均等割りのタイルを作るミニ課題。</p>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="exercise.html">Exercises</a>
+  </nav>
 
-  <div class="container">
-    <!-- コード表示部分 -->
-    <pre class="code-box">
-&lt;style&gt;
-.grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
-.tile { aspect-ratio:1/1; background:#00000026; border-radius:10px; }
-.grid .tile:nth-child(6n+1){ background:#ffeb3b; }
-.grid .tile:nth-child(6n+2){ background:#7cc4ff; }
-.grid .tile:nth-child(6n+3){ background:#ff8a50; }
-.grid .tile:nth-child(6n+4){ background:#fff; }
-.grid .tile:nth-child(6n+5){ background:#00000066; }
-&lt;/style&gt;
+  <main class="exercise-list">
+    <h1 style="color:var(--title, #ffeb3b); margin:0 0 .4em;">Code Writing Exercise</h1>
+    <p>各セクションの <b>Run</b> を押すと、右側のウィンドウで結果が動きます。コードは自由に書き換えてOK。</p>
 
-&lt;div class="grid"&gt;
-  &lt;div class="tile"&gt;&lt;/div&gt;
-  &lt;div class="tile"&gt;&lt;/div&gt;
-  &lt;div class="tile"&gt;&lt;/div&gt;
-  ...
-&lt;/div&gt;
-    </pre>
+    <!-- ========= Exercise 1 ========= -->
+    <section class="exercise" id="ex1">
+      <h2>Exercise 1: カラーブロックのグリッド</h2>
+      <p class="lead">CSS Gridで均等割りのタイルを作るミニ課題。</p>
+      <div class="playground">
+        <div class="codepane">
+          <textarea spellcheck="false">
+<style>
+  .grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; padding:12px; }
+  .tile { aspect-ratio:1 / 1; background:#00000026; border-radius:10px; }
+  .grid .tile:nth-child(6n+1){ background:#ffeb3b; }
+  .grid .tile:nth-child(6n+2){ background:#7cc4ff; }
+  .grid .tile:nth-child(6n+3){ background:#ff8a50; }
+  .grid .tile:nth-child(6n+4){ background:#ffffff; }
+  .grid .tile:nth-child(6n+5){ background:#00000066; }
+</style>
 
-    <!-- 実行ウィンドウ部分 -->
-    <iframe srcdoc="
-      <style>
-        .grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
-        .tile { aspect-ratio:1/1; background:#00000026; border-radius:10px; }
-        .grid .tile:nth-child(6n+1){ background:#ffeb3b; }
-        .grid .tile:nth-child(6n+2){ background:#7cc4ff; }
-        .grid .tile:nth-child(6n+3){ background:#ff8a50; }
-        .grid .tile:nth-child(6n+4){ background:#fff; }
-        .grid .tile:nth-child(6n+5){ background:#00000066; }
-      </style>
-      <div class='grid'>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
-        <div class='tile'></div>
+<div class="grid">
+  <!-- 好きなだけ増やす -->
+  <div class="tile"></div><div class="tile"></div><div class="tile"></div>
+  <div class="tile"></div><div class="tile"></div><div class="tile"></div>
+  <div class="tile"></div><div class="tile"></div><div class="tile"></div>
+  <div class="tile"></div><div class="tile"></div><div class="tile"></div>
+</div>
+          </textarea>
+          <div class="actions">
+            <button class="btn run">Run</button>
+            <button class="btn copy" data-copy>Copy</button>
+          </div>
+        </div>
+        <div class="preview"><iframe title="preview-1"></iframe></div>
       </div>
-    "></iframe>
+    </section>
+
+    <!-- ========= Exercise 2 ========= -->
+    <section class="exercise" id="ex2">
+      <h2>Exercise 2: レスポンシブ・ヒーロー</h2>
+      <p class="lead"><code>clamp()</code> と中央寄せで、画面幅に応じて滑らかに伸縮する見出し。</p>
+      <div class="playground">
+        <div class="codepane">
+          <textarea spellcheck="false">
+<style>
+  .hero-demo{
+    min-height:40vh; display:grid; place-items:center; text-align:center;
+    background:#3a8f34; color:#fff;
+  }
+  .hero-demo h1{ font-size:clamp(2rem,8vw,6rem); color:#ffeb3b; margin:.2em 0; }
+  .hero-demo p{ font-size:clamp(1rem,3vw,1.6rem); color:#7cc4ff; margin:0; }
+</style>
+
+<section class="hero-demo">
+  <div>
+    <h1>Responsive Title</h1>
+    <p>Resize to see it scale</p>
   </div>
+</section>
+          </textarea>
+          <div class="actions">
+            <button class="btn run">Run</button>
+            <button class="btn copy" data-copy>Copy</button>
+          </div>
+        </div>
+        <div class="preview"><iframe title="preview-2"></iframe></div>
+      </div>
+    </section>
+
+    <!-- ========= Exercise 3 ========= -->
+    <section class="exercise" id="ex3">
+      <h2>Exercise 3: シンプルなカードレイアウト</h2>
+      <p class="lead">Flex + 垂直リズムで、作品サムネのカードを作る。</p>
+      <div class="playground">
+        <div class="codepane">
+          <textarea spellcheck="false">
+<style>
+  .cards{ display:flex; gap:14px; flex-wrap:wrap; padding:12px; }
+  .card{
+    flex:1 1 220px; background:#fff; color:#222; border-radius:12px; overflow:hidden;
+    box-shadow:0 6px 20px #0002; display:flex; flex-direction:column;
+  }
+  .thumb{ aspect-ratio: 4 / 3; background: linear-gradient(45deg, #7cc4ff, #ffeb3b); }
+  .body{ padding:12px 14px; display:flex; flex-direction:column; gap:.4rem; }
+  .title{ font-weight:700; }
+  .meta{ color:#666; font-size:.9rem; }
+  .btnline{ margin-top:auto; display:flex; gap:8px; }
+  .btnmini{ padding:6px 10px; border-radius:999px; border:1px solid #0002; background:#00000008; }
+</style>
+
+<section class="cards">
+  <article class="card">
+    <div class="thumb"></div>
+    <div class="body">
+      <div class="title">Work #1</div>
+      <div class="meta">2025 / HTML+CSS</div>
+      <p>短い説明文が入ります。</p>
+      <div class="btnline">
+        <button class="btnmini">Detail</button>
+        <button class="btnmini">Open</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="thumb"></div>
+    <div class="body">
+      <div class="title">Work #2</div>
+      <div class="meta">2025 / JS</div>
+      <p>短い説明文が入ります。</p>
+      <div class="btnline">
+        <button class="btnmini">Detail</button>
+        <button class="btnmini">Open</button>
+      </div>
+    </div>
+  </article>
+</section>
+          </textarea>
+          <div class="actions">
+            <button class="btn run">Run</button>
+            <button class="btn copy" data-copy>Copy</button>
+          </div>
+        </div>
+        <div class="preview"><iframe title="preview-3"></iframe></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ミニスクリプト：Run で iframe に反映／Copy でクリップボード -->
+  <script>
+    document.querySelectorAll('.exercise').forEach(ex => {
+      const ta = ex.querySelector('textarea');
+      const frame = ex.querySelector('iframe');
+      const runBtn = ex.querySelector('.btn.run');
+      const copyBtn = ex.querySelector('[data-copy]');
+      const run = () => frame.srcdoc = ta.value;
+      runBtn.addEventListener('click', run);
+      // 初期プレビュー
+      run();
+      // Copy
+      copyBtn?.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(ta.value); copyBtn.textContent='Copied!'; }
+        catch { copyBtn.textContent='Copy failed'; }
+        setTimeout(()=> copyBtn.textContent='Copy', 1400);
+      });
+    });
+  </script>
 </body>
 </html>
