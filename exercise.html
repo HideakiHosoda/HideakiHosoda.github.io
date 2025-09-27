@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Writing Exercise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="exercise.html">Exercises</a>
+  </nav>
+
+  <main class="container">
+    <h1>Code Writing Exercise</h1>
+    <p>ここでは、授業・自主練習用の小さなコード課題をまとめます。すべてHTML+CSS（必要に応じて少量のJS）。</p>
+
+    <h2>Exercise 1: カラーブロックのグリッド</h2>
+    <p>CSS Gridで均等割りのタイルを作るミニ課題。</p>
+    <pre><code>&lt;style&gt;
+.grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.tile { aspect-ratio:1 / 1; background:#00000026; border-radius:10px; }
+.grid .tile:nth-child(6n+1){ background:#ffeb3b; }
+.grid .tile:nth-child(6n+2){ background:#7cc4ff; }
+.grid .tile:nth-child(6n+3){ background:#ff8a50; }
+.grid .tile:nth-child(6n+4){ background:#fff; }
+.grid .tile:nth-child(6n+5){ background:#00000066; }
+&lt;/style&gt;
+
+&lt;div class="grid"&gt;
+  &lt;div class="tile"&gt;&lt;/div&gt;  &lt;div class="tile"&gt;&lt;/div&gt;  &lt;div class="tile"&gt;&lt;/div&gt;
+  &lt;div class="tile"&gt;&lt;/div&gt;  &lt;div class="tile"&gt;&lt;/div&gt;  &lt;div class="tile"&gt;&lt;/div&gt;
+  &lt;!-- 好きなだけ増やす --&gt;
+&lt;/div&gt;</code></pre>
+
+    <h2>Exercise 2: レスポンシブ・ヒーロー</h2>
+    <p><code>clamp()</code> を使って見出しが画面幅で滑らかに伸縮する見本。</p>
+    <pre><code>.hero-demo{
+  min-height:40vh; display:grid; place-items:center; text-align:center;
+}
+.hero-demo h1{ font-size:clamp(2rem,8vw,6rem); color:#ffeb3b; }
+.hero-demo p{ font-size:clamp(1rem,3vw,1.6rem); color:#7cc4ff; }</code></pre>
+
+    <section class="hero-demo" style="background:#3a8f34;">
+      <div>
+        <h1>Responsive Title</h1>
+        <p>Resize to see it scale</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
