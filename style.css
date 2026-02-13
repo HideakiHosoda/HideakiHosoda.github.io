@@ -52,10 +52,7 @@ body{
       background: #222;
     }
 
-    .title {
-      margin-top: 16px;
-      font-size: 20px;
-    }
+ 
 
     .desc {
       margin-top: 8px;
@@ -75,13 +72,18 @@ body{
 
 /* ===== Typo ===== */
 .title{
-  font-weight:600;
+margin-top: 16px;
+font-size: 20px;
+font-weight:600;
   letter-spacing:.04em;
   color:var(--title);
   font-size: clamp(2.2rem, 6vw, 6rem);
 }
+
+
 .titlewks{
-        margin-top: 3px;
+margin-top: 3px;
+font-size: 10px;
 font-weight:300;
   letter-spacing:.01em;
   color:var(--title);
