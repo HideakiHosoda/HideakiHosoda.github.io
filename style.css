@@ -83,6 +83,13 @@ color:var(--title);
 font-size: clamp(2.2rem, 6vw, 6rem);
 }
 
+.page-title{
+margin-top: 20px;
+font-weight:600;
+letter-spacing:.03em;
+color:var(--title);
+font-size: clamp(1.5rem, 2vw, 3rem);
+}
 
 .titlewks{
 margin-top: 3px;
