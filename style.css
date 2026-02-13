@@ -3,7 +3,6 @@
   --bg:#3a8f34;      /* 背景グリーン */
   --title:#ffeb3b;   /* 黄色 */
   --titlewks:#7cc4ff;     /* 水色 */
-
   --sub:#7cc4ff;     /* 水色 */
   --accent:#ff8a50;  /* オレンジ */
   --text:#f7f7f7;
@@ -87,14 +86,14 @@ margin-top: 3px;
 font-weight:600;
 letter-spacing:.01em;
 color:var(--titlewks);
-  font-size: clamp(1rem, 1.2vw, 1.9rem);
+font-size: clamp(1rem, 1.2vw, 1.9rem);
 }
 
 .subtitle{
-  color:var(--sub);
-  font-weight:500;
-  letter-spacing:.08em;
-  font-size: clamp(1.2rem, 3.4vw, 2.2rem);
+color:var(--sub);
+font-weight:500;
+letter-spacing:.08em;
+font-size: clamp(1.2rem, 3.4vw, 2.2rem);
 }
 
 .cta{
