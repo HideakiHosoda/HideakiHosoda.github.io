@@ -2,6 +2,8 @@
 :root{
   --bg:#3a8f34;      /* 背景グリーン */
   --title:#ffeb3b;   /* 黄色 */
+  --title2:#7cc4ff;     /* 水色 */
+
   --sub:#7cc4ff;     /* 水色 */
   --accent:#ff8a50;  /* オレンジ */
   --text:#f7f7f7;
@@ -73,7 +75,7 @@ body{
 /* ===== Typo ===== */
 .title{
 margin-top: 16px;
-font-size: 40px;
+font-size: 10px;
 font-weight:600;
   letter-spacing:.04em;
   color:var(--title);
@@ -83,7 +85,7 @@ font-weight:600;
 
 .titlewks{
 margin-top: 3px;
-font-size: 10px;
+font-size:70px;
 font-weight:600;
   letter-spacing:.01em;
   color:var(--title);
