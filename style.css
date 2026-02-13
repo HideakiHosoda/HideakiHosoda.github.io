@@ -87,7 +87,7 @@ margin-top: 3px;
 font-weight:600;
 letter-spacing:.01em;
 color:var(--title);
-font-size: clamp(0.3rem, 1vw, 1rem);
+  font-size: clamp(1.15rem, 1.2vw + 0.9rem, 1.9rem);
 }
 
 .subtitle{
