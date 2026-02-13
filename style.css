@@ -73,7 +73,7 @@ body{
 /* ===== Typo ===== */
 .title{
 margin-top: 16px;
-font-size: 20px;
+font-size: 40px;
 font-weight:600;
   letter-spacing:.04em;
   color:var(--title);
