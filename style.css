@@ -75,21 +75,19 @@ body{
 /* ===== Typo ===== */
 .title{
 margin-top: 16px;
-font-size: 10px;
 font-weight:600;
-  letter-spacing:.04em;
-  color:var(--title);
-  font-size: clamp(2.2rem, 6vw, 6rem);
+letter-spacing:.04em;
+color:var(--title);
+font-size: clamp(2.2rem, 6vw, 6rem);
 }
 
 
 .titlewks{
 margin-top: 3px;
-font-size:70px;
 font-weight:600;
-  letter-spacing:.01em;
-  color:var(--title);
-  font-size: clamp(2.2rem, 6vw, 6rem);
+letter-spacing:.01em;
+color:var(--title);
+font-size: clamp(1rem, 3vw, 3rem);
 }
 
 .subtitle{
