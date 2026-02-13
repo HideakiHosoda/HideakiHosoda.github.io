@@ -84,7 +84,7 @@ font-size: clamp(2.2rem, 6vw, 6rem);
 .titlewks{
 margin-top: 3px;
 font-weight:600;
-letter-spacing:.01em;
+letter-spacing:.03em;
 color:var(--titlewks);
 font-size: clamp(1rem, 1.2vw, 1.9rem);
 }
