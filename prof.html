@@ -2,19 +2,74 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>プロフィール</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Portfolio</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #fff;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      padding: 60px;
+      box-sizing: border-box;
+    }
+
+    .left {
+      flex: 1;
+    }
+
+    .name {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      letter-spacing: 0.05em;
+    }
+
+    .menu {
+      font-size: 22px;
+      line-height: 1.8;
+    }
+
+    .menu a {
+      display: block;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .menu a:hover {
+      text-decoration: underline;
+    }
+
+    .right {
+      flex: 1;
+      text-align: right;
+    }
+
+    .right img {
+      max-height: 80vh;
+    }
+  </style>
 </head>
 <body>
-  <h1>プロフィール</h1>
-  <p>名前：〇〇〇〇</p>
-  <p>私は〇〇を専攻していて、普段は〇〇の作品を作っています。</p>
 
-  <nav>
-    <a href="index.html">Home</a> |
-    <a href="about.html">プロフィール</a> |
-    <a href="works.html">作品紹介</a>
-  </nav>
+<div class="container">
+  <div class="left">
+    <div class="name">TARADAI ANASTASTIA</div>
+    <div class="menu">
+      <a href="#">Illustration</a>
+      <a href="#">3DCG</a>
+      <a href="#">About Me</a>
+    </div>
+  </div>
+
+  <div class="right">
+    <img src="character.png" alt="character">
+  </div>
+</div>
+
 </body>
-
 </html>
