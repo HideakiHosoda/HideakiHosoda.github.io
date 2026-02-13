@@ -68,7 +68,10 @@ body{
         grid-template-columns: 1fr;
       }
     }
-
+  /*Worksの頭のスペース*/
+.page-header {
+      color: #555;
+    }
 
 
 /* ===== Typo ===== */
