@@ -2,24 +2,88 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>作品紹介</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Works</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+      background: #fff;
+      color: #222;
+    }
+
+    /* 全体のグリッド */
+    .works {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+
+    /* 1作品 */
+    .work {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .work img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: #222;
+    }
+
+    .title {
+      margin-top: 16px;
+      font-size: 20px;
+    }
+
+    .desc {
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    /* スマホ対応 */
+    @media (max-width: 900px) {
+      .works {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>作品紹介</h1>
 
-  <h2>作品1</h2>
-  <p>この作品は〇〇をテーマにしています。</p>
-  <img src="images/work1.jpg" alt="作品1">
+  <section class="works">
 
-  <h2>作品2</h2>
-  <p>この作品は〇〇を表現しています。</p>
-  <img src="images/work2.jpg" alt="作品2">
+    <article class="work">
+      <img src="images/photo1.png" alt="写真1">
+      <div class="title">作品タイトル</div>
+      <div class="desc">
+        説明説明説明説明説明説明説明説明説明説明<br>
+        説明説明説明説明説明説明説明説明説明説明
+      </div>
+    </article>
 
-  <nav>
-    <a href="index.html">Home</a> |
-    <a href="about.html">プロフィール</a> |
-    <a href="works.html">作品紹介</a>
-  </nav>
+    <article class="work">
+      <img src="images/photo2.png" alt="写真2">
+      <div class="title">作品タイトル</div>
+      <div class="desc">
+        説明説明説明説明説明説明説明説明説明説明<br>
+        説明説明説明説明説明説明説明説明説明説明
+      </div>
+    </article>
+
+    <article class="work">
+      <img src="images/photo3.png" alt="写真3">
+      <div class="title">作品タイトル</div>
+      <div class="desc">
+        説明説明説明説明説明説明説明説明説明説明<br>
+        説明説明説明説明説明説明説明説明説明説明
+      </div>
+    </article>
+
+  </section>
+
 </body>
 </html>
