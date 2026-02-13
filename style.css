@@ -31,6 +31,47 @@ body{
   gap:2.2rem;
 }
 
+ /* 全体のグリッド */
+    .works {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+
+ /* 1作品 */
+    .work {
+      display: flex;
+      flex-direction: column;
+    }
+
+ .work img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: #222;
+    }
+
+    .title {
+      margin-top: 16px;
+      font-size: 20px;
+    }
+
+    .desc {
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    /* スマホ対応 */
+    @media (max-width: 900px) {
+      .works {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
 /* ===== Typo ===== */
 .title{
   font-weight:600;
