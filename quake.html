@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地震情報</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: #1a1d27;
+      border-bottom: 1px solid #2a2d3a;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    header h1 { font-size: 18px; font-weight: 600; color: #fff; }
+
+    #status {
+      font-size: 12px;
+      color: #888;
+      margin-left: auto;
+    }
+    #status.loading { color: #4a9eff; }
+    #status.error   { color: #ff6b6b; }
+
+    #main {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    #map { flex: 1; }
+
+    #sidebar {
+      width: 300px;
+      background: #1a1d27;
+      border-left: 1px solid #2a2d3a;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    #sidebar-header {
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #aaa;
+      border-bottom: 1px solid #2a2d3a;
+      flex-shrink: 0;
+    }
+
+    #quake-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .quake-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid #1e2130;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .quake-item:hover { background: #22253a; }
+    .quake-item.selected { background: #1e2d4a; }
+
+    .quake-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .quake-place {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .quake-shindo {
+      font-size: 14px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #fff;
+    }
+
+    .quake-meta {
+      font-size: 11px;
+      color: #888;
+    }
+
+    footer {
+      padding: 8px 20px;
+      background: #1a1d27;
+      border-top: 1px solid #2a2d3a;
+      font-size: 11px;
+      color: #555;
+      flex-shrink: 0;
+    }
+
+    /* 震度カラー */
+    .s1  { background: #aaaaff; }
+    .s2  { background: #5555ff; }
+    .s3  { background: #00aaff; }
+    .s4  { background: #00dd00; }
+    .s5l { background: #ffff00; color: #333 !important; }
+    .s5u { background: #ffaa00; }
+    .s6l { background: #ff5500; }
+    .s6u { background: #ff0000; }
+    .s7  { background: #aa0000; }
+
+    .leaflet-control-attribution { font-size: 10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🗾 地震情報</h1>
+  <span id="status" class="loading">データ読み込み中...</span>
+</header>
+
+<div id="main">
+  <div id="map"></div>
+  <div id="sidebar">
+    <div id="sidebar-header">最近の地震（最新20件）</div>
+    <div id="quake-list"></div>
+  </div>
+</div>
+
+<footer>
+  データ出典: <a href="https://www.jma.go.jp/" style="color:#555">気象庁</a> | 地図: © OpenStreetMap contributors
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const LIST_URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
+
+  const SHINDO_LABEL = {
+    '1': '1', '2': '2', '3': '3', '4': '4',
+    '5-': '5弱', '5+': '5強', '6-': '6弱', '6+': '6強', '7': '7'
+  };
+
+  const SHINDO_CLASS = {
+    '1': 's1', '2': 's2', '3': 's3', '4': 's4',
+    '5-': 's5l', '5+': 's5u', '6-': 's6l', '6+': 's6u', '7': 's7'
+  };
+
+  const map = L.map('map', {
+    center: [36.5, 137.5],
+    zoom: 5,
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 12,
+  }).addTo(map);
+
+  const statusEl  = document.getElementById('status');
+  const listEl    = document.getElementById('quake-list');
+
+  let markers = [];
+  let selectedIndex = -1;
+
+  function shindoColor(code) {
+    const map = {
+      '1':'#aaaaff','2':'#5555ff','3':'#00aaff','4':'#00dd00',
+      '5-':'#ffff00','5+':'#ffaa00','6-':'#ff5500','6+':'#ff0000','7':'#aa0000'
+    };
+    return map[code] || '#888888';
+  }
+
+  function formatDatetime(isoStr) {
+    // "2026-06-09T07:26:00+09:00" → "2026/06/09 07:26"
+    const d = new Date(isoStr);
+    const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    const pad = n => String(n).padStart(2, '0');
+    return `${jst.getUTCFullYear()}/${pad(jst.getUTCMonth()+1)}/${pad(jst.getUTCDate())} ${pad(jst.getUTCHours())}:${pad(jst.getUTCMinutes())}`;
+  }
+
+  function parseCoord(cod) {
+    // "+37.7+141.7-60000/" → { lat: 37.7, lon: 141.7, depth: 60 }
+    const m = cod.match(/([+-]\d+\.?\d*)([+-]\d+\.?\d*)([+-]\d+)/);
+    if (!m) return null;
+    return {
+      lat: parseFloat(m[1]),
+      lon: parseFloat(m[2]),
+      depth: Math.abs(parseInt(m[3])) / 1000,
+    };
+  }
+
+  function selectQuake(index, quake) {
+    // deselect previous
+    document.querySelectorAll('.quake-item').forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('.quake-item')[index]?.classList.add('selected');
+    selectedIndex = index;
+
+    // move map
+    if (quake.lat && quake.lon) {
+      map.setView([quake.lat, quake.lon], 7, { animate: true });
+    }
+
+    // bounce marker
+    if (markers[index]) {
+      markers[index].openPopup();
+    }
+  }
+
+  function buildMarker(quake, index) {
+    const coord = parseCoord(quake.cod || '');
+    if (!coord) return null;
+
+    const color = shindoColor(quake.maxi);
+    const label = SHINDO_LABEL[quake.maxi] || '?';
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:32px;height:32px;border-radius:50%;
+        background:${color};border:2px solid rgba(255,255,255,0.8);
+        display:flex;align-items:center;justify-content:center;
+        font-size:12px;font-weight:700;color:#fff;
+        text-shadow:0 0 3px #000;
+        box-shadow:0 2px 6px rgba(0,0,0,0.5);
+        cursor:pointer;
+      ">${label}</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    });
+
+    const mag = quake.mag ? `M${parseFloat(quake.mag).toFixed(1)}` : '';
+    const depth = coord.depth ? `深さ ${coord.depth}km` : '';
+
+    const marker = L.marker([coord.lat, coord.lon], { icon })
+      .addTo(map)
+      .bindPopup(`
+        <b>${quake.anm || '不明'}</b><br>
+        震度 ${label}　${mag}<br>
+        ${depth}<br>
+        <span style="font-size:11px;color:#888">${formatDatetime(quake.at)}</span>
+      `);
+
+    marker.on('click', () => selectQuake(index, coord));
+
+    return marker;
+  }
+
+  async function loadQuakes() {
+    try {
+      statusEl.textContent = 'データ読み込み中...';
+      statusEl.className = 'loading';
+
+      const resp = await fetch(LIST_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      // clear old markers
+      markers.forEach(m => m && map.removeLayer(m));
+      markers = [];
+      listEl.innerHTML = '';
+
+      const recent = data.slice(0, 20);
+
+      recent.forEach((quake, i) => {
+        // add marker
+        const m = buildMarker(quake, i);
+        markers.push(m);
+
+        // add list item
+        const label = SHINDO_LABEL[quake.maxi] || (quake.maxi ? `${quake.maxi}` : '?');
+        const cls   = SHINDO_CLASS[quake.maxi] || '';
+        const mag   = quake.mag ? `M${parseFloat(quake.mag).toFixed(1)}` : 'M?';
+        const coord = parseCoord(quake.cod || '');
+        const depth = coord?.depth ? `深さ${coord.depth}km` : '';
+
+        const item = document.createElement('div');
+        item.className = 'quake-item';
+        item.innerHTML = `
+          <div class="quake-item-top">
+            <span class="quake-place">${quake.anm || '不明'}</span>
+            <span class="quake-shindo ${cls}">震度 ${label}</span>
+          </div>
+          <div class="quake-meta">${formatDatetime(quake.at)}　${mag}　${depth}</div>
+        `;
+        item.addEventListener('click', () => selectQuake(i, {
+          lat: quake.lat / 100,
+          lon: quake.lon / 100,
+        }));
+        listEl.appendChild(item);
+      });
+
+      statusEl.textContent = `${recent.length}件取得済`;
+      statusEl.className = '';
+
+      // show latest quake
+      if (recent.length > 0) {
+        const first = parseCoord(recent[0].cod || '');
+        if (first) selectQuake(0, first);
+      }
+
+    } catch (e) {
+      statusEl.textContent = 'データ取得エラー: ' + e.message;
+      statusEl.className = 'error';
+      console.error(e);
+    }
+  }
+
+  loadQuakes();
+  setInterval(loadQuakes, 60 * 1000); // 1分ごとに更新
+</script>
+</body>
+</html>
