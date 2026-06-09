@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雨雲レーダー</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: #1a1d27;
+      border-bottom: 1px solid #2a2d3a;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    #status {
+      font-size: 12px;
+      color: #888;
+      margin-left: auto;
+    }
+
+    #status.loading { color: #4a9eff; }
+    #status.error   { color: #ff6b6b; }
+
+    #map {
+      flex: 1;
+      min-height: 0;
+    }
+
+    #controls {
+      background: #1a1d27;
+      border-top: 1px solid #2a2d3a;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    #time-display {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      min-width: 140px;
+    }
+
+    #slider {
+      flex: 1;
+      min-width: 120px;
+      accent-color: #4a9eff;
+      cursor: pointer;
+    }
+
+    .btn {
+      background: #2a2d3a;
+      border: 1px solid #3a3d4a;
+      color: #e0e0e0;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #3a3d4a; }
+    .btn.active { background: #4a9eff; color: #fff; border-color: #4a9eff; }
+
+    #legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #888;
+    }
+
+    .legend-bar {
+      height: 12px;
+      width: 120px;
+      border-radius: 3px;
+      background: linear-gradient(to right,
+        rgba(0,0,255,0.4),
+        rgba(0,200,255,0.6),
+        rgba(0,255,0,0.7),
+        rgba(255,255,0,0.8),
+        rgba(255,128,0,0.9),
+        rgba(255,0,0,1)
+      );
+    }
+
+    .leaflet-control-attribution { font-size: 10px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌧 雨雲レーダー</h1>
+  <span id="status" class="loading">データ読み込み中...</span>
+</header>
+
+<div id="map"></div>
+
+<div id="controls">
+  <div id="time-display">--:--</div>
+  <input type="range" id="slider" min="0" value="0" step="1" disabled>
+  <button class="btn" id="btn-play" disabled>▶ 再生</button>
+  <button class="btn" id="btn-latest" disabled>最新</button>
+  <div id="legend">
+    <span>弱</span>
+    <div class="legend-bar"></div>
+    <span>強</span>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const TARGET_TIMES_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N1.json';
+  const TILE_BASE = 'https://www.jma.go.jp/bosai/jmatile/data/nowc';
+
+  const map = L.map('map', {
+    center: [36.5, 137.5],
+    zoom: 6,
+    zoomControl: true,
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | 気象データ: <a href="https://www.jma.go.jp/">気象庁</a>',
+    maxZoom: 10,
+  }).addTo(map);
+
+  let radarLayer = null;
+  let times = [];
+  let currentIndex = 0;
+  let playTimer = null;
+  let isPlaying = false;
+
+  const statusEl      = document.getElementById('status');
+  const timeDisplay   = document.getElementById('time-display');
+  const slider        = document.getElementById('slider');
+  const btnPlay       = document.getElementById('btn-play');
+  const btnLatest     = document.getElementById('btn-latest');
+
+  function formatTime(validtime) {
+    // validtime format: "20240601120000" → "06/01 12:00"
+    const s = String(validtime);
+    const month  = s.slice(4, 6);
+    const day    = s.slice(6, 8);
+    const hour   = s.slice(8, 10);
+    const minute = s.slice(10, 12);
+    return `${month}/${day} ${hour}:${minute}`;
+  }
+
+  function isForecast(validtime, basetime) {
+    return String(validtime) > String(basetime);
+  }
+
+  function showFrame(index) {
+    if (!times.length) return;
+    const { validtime, basetime } = times[index];
+
+    if (radarLayer) map.removeLayer(radarLayer);
+
+    const url = `${TILE_BASE}/${basetime}/none/${validtime}/surf/hrpns/{z}/{x}/{y}.png`;
+    radarLayer = L.tileLayer(url, {
+      opacity: 0.7,
+      maxZoom: 10,
+      tileSize: 256,
+      errorTileUrl: '',
+    }).addTo(map);
+
+    const label = formatTime(validtime);
+    const forecast = isForecast(validtime, basetime);
+    timeDisplay.textContent = label + (forecast ? ' (予測)' : '');
+    timeDisplay.style.color = forecast ? '#ffa040' : '#fff';
+    slider.value = index;
+    currentIndex = index;
+  }
+
+  function playNext() {
+    const nextIndex = (currentIndex + 1) % times.length;
+    showFrame(nextIndex);
+    if (nextIndex === times.length - 1) {
+      // pause briefly at the end before looping
+      clearInterval(playTimer);
+      playTimer = setTimeout(() => {
+        playTimer = setInterval(playNext, 600);
+      }, 1500);
+    }
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      clearInterval(playTimer);
+      clearTimeout(playTimer);
+      isPlaying = false;
+      btnPlay.textContent = '▶ 再生';
+      btnPlay.classList.remove('active');
+    } else {
+      isPlaying = true;
+      btnPlay.textContent = '⏸ 停止';
+      btnPlay.classList.add('active');
+      playTimer = setInterval(playNext, 600);
+    }
+  }
+
+  async function loadTimes() {
+    try {
+      statusEl.textContent = 'データ読み込み中...';
+      statusEl.className = 'loading';
+
+      const resp = await fetch(TARGET_TIMES_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      // data is array of { validtime, basetime }
+      times = data.sort((a, b) => String(a.validtime).localeCompare(String(b.validtime)));
+
+      slider.max = times.length - 1;
+      slider.disabled = false;
+      btnPlay.disabled = false;
+      btnLatest.disabled = false;
+
+      // show the most recent observed (not forecast) frame
+      const lastObserved = times.reduce((best, t, i) => {
+        return String(t.validtime) <= String(t.basetime) ? i : best;
+      }, times.length - 1);
+      showFrame(lastObserved);
+
+      statusEl.textContent = `${times.length} フレーム取得済`;
+      statusEl.className = '';
+    } catch (e) {
+      statusEl.textContent = 'データ取得エラー: ' + e.message;
+      statusEl.className = 'error';
+      console.error(e);
+    }
+  }
+
+  slider.addEventListener('input', () => {
+    if (isPlaying) togglePlay();
+    showFrame(Number(slider.value));
+  });
+
+  btnPlay.addEventListener('click', togglePlay);
+
+  btnLatest.addEventListener('click', () => {
+    if (isPlaying) togglePlay();
+    const lastObserved = times.reduce((best, t, i) => {
+      return String(t.validtime) <= String(t.basetime) ? i : best;
+    }, 0);
+    showFrame(lastObserved);
+  });
+
+  // auto-refresh every 5 minutes
+  loadTimes();
+  setInterval(loadTimes, 5 * 60 * 1000);
+</script>
+</body>
+</html>
